@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { ElasticClient } from './ElasticClient';
-import { ruleConfig } from './configDA';
+import { ElasticClient } from './elasticClient';
+import { ruleListConfig } from './configDA';
 
 export async function deleteIndex(index: string) {
   try {
@@ -30,10 +30,10 @@ async function checkIfIndexDA(index: string) {
   }
 }
 
-export async function getRuleDA(id: number) {
+export async function getRuleListDA(id: number) {
   try {
     const result = await ElasticClient.client.search({
-      ...ruleConfig,
+      ...ruleListConfig,
       body: {
         query: {
           match: {
@@ -44,18 +44,18 @@ export async function getRuleDA(id: number) {
     });
 
     return result.hits.hits.length > 0
-      ? result.hits.hits[0]._source as Rule
+      ? result.hits.hits[0]._source as RuleList
       : null;
   } catch (e) {
     throw new Error(`Cannot get the requested Rule. ${e}`);
   }
 }
 
-export async function addRuleDA(rule: Rule) {
+export async function addRuleListDA(ruleList: RuleList) {
   try {
     const result = await ElasticClient.client.index({
-      ...ruleConfig,
-      body: rule
+      ...ruleListConfig,
+      body: ruleList
     });
     return `Add Rule - Success.`;
   } catch (e) {
@@ -63,21 +63,15 @@ export async function addRuleDA(rule: Rule) {
   }
 }
 
-export async function updateRuleDA(id: number, rule: Rule) {
+export async function updateRuleListDA(id: number, ruleList: RuleList) {
   try {
     const result = await ElasticClient.client.updateByQuery({
-      ...ruleConfig,
+      ...ruleListConfig,
       body: {
         query: { match: { id } },
         script: `
-        ctx._source.id = '${rule.id}';
-        ctx._source.sourceIP = '${rule.sourceIP}';
-        ctx._source.destinationIP = '${rule.destinationIP}';
-        ctx._source.sourcePort = '${rule.sourcePort}';
-        ctx._source.destinationPort = '${rule.destinationPort}';
-        ctx._source.type = '${rule.type}';
-        ctx._source.packetsPerSecond = '${rule.packetsPerSecond}';
-        ctx._source.action = '${rule.action}';
+        ctx._source.id = '${ruleList.id}';
+        ctx._source.rules = '${ruleList.rules}';
         `
       }
     });
@@ -87,10 +81,10 @@ export async function updateRuleDA(id: number, rule: Rule) {
   }
 }
 
-export async function deleteRuleDA(id: number) {
+export async function deleteRuleListDA(id: number) {
   try {
     const result = await ElasticClient.client.deleteByQuery({
-      ...ruleConfig,
+      ...ruleListConfig,
       body: {
         query: { match: { id } }
       }
