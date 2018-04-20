@@ -8,12 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const ElasticClient_1 = require("./ElasticClient");
+const elasticClient_1 = require("./elasticClient");
 const configDA_1 = require("./configDA");
 function deleteIndex(index) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield ElasticClient_1.ElasticClient.client.indices.delete({ index });
+            yield elasticClient_1.ElasticClient.client.indices.delete({ index });
         }
         catch (e) {
             return e;
@@ -24,7 +24,7 @@ exports.deleteIndex = deleteIndex;
 function createIndex(index) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield ElasticClient_1.ElasticClient.client.indices.create({ index });
+            yield elasticClient_1.ElasticClient.client.indices.create({ index });
         }
         catch (e) {
             return e;
@@ -34,7 +34,7 @@ function createIndex(index) {
 function checkIfIndexDA(index) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield ElasticClient_1.ElasticClient.client.indices.exists({ index });
+            yield elasticClient_1.ElasticClient.client.indices.exists({ index });
         }
         catch (_a) {
             try {
@@ -46,10 +46,10 @@ function checkIfIndexDA(index) {
         }
     });
 }
-function getRuleDA(id) {
+function getRuleListDA(id) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const result = yield ElasticClient_1.ElasticClient.client.search(Object.assign({}, configDA_1.ruleConfig, { body: {
+            const result = yield elasticClient_1.ElasticClient.client.search(Object.assign({}, configDA_1.ruleListConfig, { body: {
                     query: {
                         match: {
                             id
@@ -65,54 +65,48 @@ function getRuleDA(id) {
         }
     });
 }
-exports.getRuleDA = getRuleDA;
-function addRuleDA(rule) {
+exports.getRuleListDA = getRuleListDA;
+function addRuleListDA(ruleList) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const result = yield ElasticClient_1.ElasticClient.client.index(Object.assign({}, configDA_1.ruleConfig, { body: rule }));
-            return `Add Rule - Success.`;
+            const result = yield elasticClient_1.ElasticClient.client.index(Object.assign({}, configDA_1.ruleListConfig, { body: ruleList }));
+            return `Add RuleList - Success.`;
         }
         catch (e) {
-            throw new Error(`Cannot add Rule. ${e}`);
+            throw new Error(`Cannot add RuleList. ${e}`);
         }
     });
 }
-exports.addRuleDA = addRuleDA;
-function updateRuleDA(id, rule) {
+exports.addRuleListDA = addRuleListDA;
+function updateRuleListDA(id, ruleList) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const result = yield ElasticClient_1.ElasticClient.client.updateByQuery(Object.assign({}, configDA_1.ruleConfig, { body: {
+            const result = yield elasticClient_1.ElasticClient.client.updateByQuery(Object.assign({}, configDA_1.ruleListConfig, { body: {
                     query: { match: { id } },
                     script: `
-        ctx._source.id = '${rule.id}';
-        ctx._source.sourceIP = '${rule.sourceIP}';
-        ctx._source.destinationIP = '${rule.destinationIP}';
-        ctx._source.sourcePort = '${rule.sourcePort}';
-        ctx._source.destinationPort = '${rule.destinationPort}';
-        ctx._source.type = '${rule.type}';
-        ctx._source.packetsPerSecond = '${rule.packetsPerSecond}';
-        ctx._source.action = '${rule.action}';
+        ctx._source.id = '${ruleList.id}';
+        ctx._source.rules = '${ruleList.rules}';
         `
                 } }));
-            return `Update Rule - Success.`;
+            return `Update RuleList - Success.`;
         }
         catch (e) {
-            throw new Error(`Cannot update Rule. ${e}`);
+            throw new Error(`Cannot update RuleList. ${e}`);
         }
     });
 }
-exports.updateRuleDA = updateRuleDA;
-function deleteRuleDA(id) {
+exports.updateRuleListDA = updateRuleListDA;
+function deleteRuleListDA(id) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const result = yield ElasticClient_1.ElasticClient.client.deleteByQuery(Object.assign({}, configDA_1.ruleConfig, { body: {
+            const result = yield elasticClient_1.ElasticClient.client.deleteByQuery(Object.assign({}, configDA_1.ruleListConfig, { body: {
                     query: { match: { id } }
                 } }));
-            return `Delete Rule - Success.`;
+            return `Delete RuleList - Success.`;
         }
         catch (e) {
-            throw new Error(`Cannot delete Rule. ${e}`);
+            throw new Error(`Cannot delete RuleList. ${e}`);
         }
     });
 }
-exports.deleteRuleDA = deleteRuleDA;
+exports.deleteRuleListDA = deleteRuleListDA;

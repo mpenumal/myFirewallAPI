@@ -1,5 +1,5 @@
 export const ruleListConfig = {
-  index: 'ruleList',
+  index: 'rulelist',
   type: 'doc'
 }
 

@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/', express.Router().get('/', (req, res) => { res.send('Welcome to Firewall, Dude!'); }));
 app.use('/packet/', packetRouter);
 app.use('/rule/', ruleRouter);
-app.use('/ruleList/', ruleListRouter);
+app.use('/rulelist/', ruleListRouter);
 
 const port = normalizePort(process.env.port || 3000);
 app.set('port', port);

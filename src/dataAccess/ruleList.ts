@@ -57,9 +57,9 @@ export async function addRuleListDA(ruleList: RuleList) {
       ...ruleListConfig,
       body: ruleList
     });
-    return `Add Rule - Success.`;
+    return `Add RuleList - Success.`;
   } catch (e) {
-    throw new Error(`Cannot add Rule. ${e}`);
+    throw new Error(`Cannot add RuleList. ${e}`);
   }
 }
 
@@ -75,9 +75,9 @@ export async function updateRuleListDA(id: number, ruleList: RuleList) {
         `
       }
     });
-    return `Update Rule - Success.`;
+    return `Update RuleList - Success.`;
   } catch (e) {
-    throw new Error(`Cannot update Rule. ${e}`);
+    throw new Error(`Cannot update RuleList. ${e}`);
   }
 }
 
@@ -89,8 +89,8 @@ export async function deleteRuleListDA(id: number) {
         query: { match: { id } }
       }
     });
-    return `Delete Rule - Success.`;
+    return `Delete RuleList - Success.`;
   } catch (e) {
-    throw new Error(`Cannot delete Rule. ${e}`);
+    throw new Error(`Cannot delete RuleList. ${e}`);
   }
 }

@@ -14,7 +14,7 @@ exports.app.use(bodyParser.urlencoded({ extended: false }));
 exports.app.use('/', express.Router().get('/', (req, res) => { res.send('Welcome to Firewall, Dude!'); }));
 exports.app.use('/packet/', packet_1.packetRouter);
 exports.app.use('/rule/', rule_1.ruleRouter);
-exports.app.use('/ruleList/', ruleList_1.ruleListRouter);
+exports.app.use('/rulelist/', ruleList_1.ruleListRouter);
 const port = normalizePort(process.env.port || 3000);
 exports.app.set('port', port);
 const server = http.createServer(exports.app);
