@@ -51,6 +51,23 @@ export async function getRuleDA(id: number) {
   }
 }
 
+export async function getRulesCollectionDA(ruleIds: number[]) {
+  try {
+    const query = ruleIds.map((x) => `id:${x} or `).join().replace(',', '').slice(0, -4);
+    const results = await ElasticClient.client.msearch({
+      body: [
+        { ...ruleConfig },
+        { query: { query_string: { query } } }
+      ]
+    });
+    return results.responses !== undefined
+      ? results.responses.map((responses) => responses.hits.hits.map((x) => x._source as Rule))[0]
+      : null;
+  } catch (e) {
+    throw new Error(`Cannot get the requested Rules.${e}`);
+  }
+}
+
 export async function addRuleDA(rule: Rule) {
   try {
     const result = await ElasticClient.client.index({
@@ -59,7 +76,7 @@ export async function addRuleDA(rule: Rule) {
     });
     return `Add Rule - Success.`;
   } catch (e) {
-    throw new Error(`Cannot add Rule. ${e}`);
+    throw new Error(`Cannot add Rule.${e}`);
   }
 }
 
@@ -71,19 +88,19 @@ export async function updateRuleDA(id: number, rule: Rule) {
         query: { match: { id } },
         script: `
         ctx._source.id = '${rule.id}';
-        ctx._source.sourceIP = '${rule.sourceIP}';
-        ctx._source.destinationIP = '${rule.destinationIP}';
-        ctx._source.sourcePort = '${rule.sourcePort}';
-        ctx._source.destinationPort = '${rule.destinationPort}';
-        ctx._source.type = '${rule.type}';
-        ctx._source.packetsPerSecond = '${rule.packetsPerSecond}';
-        ctx._source.action = '${rule.action}';
+      ctx._source.sourceIP = '${rule.sourceIP}';
+      ctx._source.destinationIP = '${rule.destinationIP}';
+      ctx._source.sourcePort = '${rule.sourcePort}';
+      ctx._source.destinationPort = '${rule.destinationPort}';
+      ctx._source.type = '${rule.type}';
+      ctx._source.packetsPerSecond = '${rule.packetsPerSecond}';
+      ctx._source.action = '${rule.action}';
         `
       }
     });
     return `Update Rule - Success.`;
   } catch (e) {
-    throw new Error(`Cannot update Rule. ${e}`);
+    throw new Error(`Cannot update Rule.${e}`);
   }
 }
 
@@ -97,6 +114,6 @@ export async function deleteRuleDA(id: number) {
     });
     return `Delete Rule - Success.`;
   } catch (e) {
-    throw new Error(`Cannot delete Rule. ${e}`);
+    throw new Error(`Cannot delete Rule.${e}`);
   }
 }

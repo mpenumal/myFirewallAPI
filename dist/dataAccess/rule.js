@@ -66,6 +66,26 @@ function getRuleDA(id) {
     });
 }
 exports.getRuleDA = getRuleDA;
+function getRulesCollectionDA(ruleIds) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const query = ruleIds.map((x) => `id:${x} or `).join().replace(',', '').slice(0, -4);
+            const results = yield ElasticClient_1.ElasticClient.client.msearch({
+                body: [
+                    Object.assign({}, configDA_1.ruleConfig),
+                    { query: { query_string: { query } } }
+                ]
+            });
+            return results.responses !== undefined
+                ? results.responses.map((responses) => responses.hits.hits.map((x) => x._source))[0]
+                : null;
+        }
+        catch (e) {
+            throw new Error(`Cannot get the requested Rules.${e}`);
+        }
+    });
+}
+exports.getRulesCollectionDA = getRulesCollectionDA;
 function addRuleDA(rule) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -73,7 +93,7 @@ function addRuleDA(rule) {
             return `Add Rule - Success.`;
         }
         catch (e) {
-            throw new Error(`Cannot add Rule. ${e}`);
+            throw new Error(`Cannot add Rule.${e}`);
         }
     });
 }
@@ -85,19 +105,19 @@ function updateRuleDA(id, rule) {
                     query: { match: { id } },
                     script: `
         ctx._source.id = '${rule.id}';
-        ctx._source.sourceIP = '${rule.sourceIP}';
-        ctx._source.destinationIP = '${rule.destinationIP}';
-        ctx._source.sourcePort = '${rule.sourcePort}';
-        ctx._source.destinationPort = '${rule.destinationPort}';
-        ctx._source.type = '${rule.type}';
-        ctx._source.packetsPerSecond = '${rule.packetsPerSecond}';
-        ctx._source.action = '${rule.action}';
+      ctx._source.sourceIP = '${rule.sourceIP}';
+      ctx._source.destinationIP = '${rule.destinationIP}';
+      ctx._source.sourcePort = '${rule.sourcePort}';
+      ctx._source.destinationPort = '${rule.destinationPort}';
+      ctx._source.type = '${rule.type}';
+      ctx._source.packetsPerSecond = '${rule.packetsPerSecond}';
+      ctx._source.action = '${rule.action}';
         `
                 } }));
             return `Update Rule - Success.`;
         }
         catch (e) {
-            throw new Error(`Cannot update Rule. ${e}`);
+            throw new Error(`Cannot update Rule.${e}`);
         }
     });
 }
@@ -111,7 +131,7 @@ function deleteRuleDA(id) {
             return `Delete Rule - Success.`;
         }
         catch (e) {
-            throw new Error(`Cannot delete Rule. ${e}`);
+            throw new Error(`Cannot delete Rule.${e}`);
         }
     });
 }
