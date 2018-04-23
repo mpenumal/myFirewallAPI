@@ -1,4 +1,6 @@
-interface Rule {
+import { Action } from './action';
+
+export interface Rule {
   id: number;
   sourceIP: number;
   destinationIP: number;

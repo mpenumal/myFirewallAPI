@@ -2,34 +2,37 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { applicableRulesConfig } from '../dataAccess/configDA';
 import { getRuleListDA } from '../dataAccess/ruleList';
 import { getRulesCollectionDA } from '../dataAccess/rule';
-import { isUndefined } from 'util';
+import { Action } from '../model/action';
+import { Rule } from '../model/rule';
 
 async function packetControl(req: Request, res: Response) {
   const packet: Packet = req.body;
+  let ruleList: RuleList | null;
+  let rules: Rule[] | null;
   try {
-    const ruleList = await getRuleListDA(getApplicableRuleList());
-    try {
-      const rules = ruleList && await getRulesCollectionDA(ruleList.rules);
-      const response = checkPacketAction(packet, rules);
-      res.send(response);
-    } catch (e) {
-      throw new Error(`Firewall rule check failed. ${e}`);
-    }
+    ruleList = await getRuleListDA(getApplicableRuleListID());
   } catch (e) {
     throw new Error(`Firewall ruleList check failed. ${e}`);
   }
+  try {
+    rules = ruleList && await getRulesCollectionDA(ruleList.rules);
+  } catch (e) {
+    throw new Error(`Firewall rule check failed. ${e}`);
+  }
+  const response = determinePacketAction(packet, rules);
+  res.send(response.toString());
 }
 
 const ipCountForRule: { id: number, ip: number, count: number, time: number }[]
   = [{ id: 0, ip: 0, count: 0, time: 0 }];
 
 // pick id based on time.
-function getApplicableRuleList() {
+function getApplicableRuleListID() {
   return applicableRulesConfig[0].ruleListID;
 }
 
-function checkPacketAction(packet: Packet, rules: Rule[] | null) {
-  if (rules === null) {
+function determinePacketAction(packet: Packet, rules: Rule[] | null) {
+  if (rules === null || rules === undefined) {
     return Action.allow;
   } else {
     const matchedRules = rules
@@ -39,7 +42,7 @@ function checkPacketAction(packet: Packet, rules: Rule[] | null) {
       .filter((x) => !x.destinationPort || x.destinationPort === packet.destinationPort)
       .filter((x) => !x.type || x.type === packet.type);
 
-    return matchedRules
+    return matchedRules && matchedRules[0] && matchedRules[0] !== undefined
       ? matchedRules[0].action === Action.checkRate
         ? checkPacketRate(packet, matchedRules[0])
         : matchedRules[0].action

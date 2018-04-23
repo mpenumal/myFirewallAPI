@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { ElasticClient } from './ElasticClient';
 import { ruleConfig } from './configDA';
+import { Rule } from '../model/rule';
 
 export async function deleteIndex(index: string) {
   try {
